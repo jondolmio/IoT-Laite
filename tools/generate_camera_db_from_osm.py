@@ -46,8 +46,13 @@ def fetch_overpass() -> dict:
         data=payload,
         headers={"User-Agent": "IoT-Laite OSM camera database generator"},
     )
-    with urllib.request.urlopen(request, timeout=240) as response:
-        return json.load(response)
+    try:
+        with urllib.request.urlopen(request, timeout=240) as response:
+            return json.load(response)
+    except Exception as error:
+        raise SystemExit(
+            f"Failed to fetch Finland speed cameras from Overpass API: {error}"
+        ) from error
 
 
 def parse_cameras(payload: dict) -> list[tuple[str, float, float]]:
@@ -178,7 +183,14 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.input:
-        payload = json.loads(args.input.read_text(encoding="utf-8"))
+        try:
+            payload = json.loads(args.input.read_text(encoding="utf-8"))
+        except FileNotFoundError as error:
+            raise SystemExit(f"Input file not found: {args.input}") from error
+        except json.JSONDecodeError as error:
+            raise SystemExit(f"Invalid JSON in input file {args.input}: {error}") from error
+        except OSError as error:
+            raise SystemExit(f"Failed to read input file {args.input}: {error}") from error
     else:
         payload = fetch_overpass()
 
@@ -187,7 +199,10 @@ def main() -> int:
         raise SystemExit("No speed cameras found in the input data.")
 
     generated = render_camera_db(cameras)
-    args.output.write_text(generated, encoding="utf-8")
+    try:
+        args.output.write_text(generated, encoding="utf-8")
+    except OSError as error:
+        raise SystemExit(f"Failed to write output file {args.output}: {error}") from error
     print(f"Wrote {len(cameras)} cameras to {args.output}")
     return 0
 
