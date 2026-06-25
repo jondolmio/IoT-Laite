@@ -17,11 +17,11 @@ typedef struct
 struct HostQueue
 {
     unsigned char *buffer;
-    UBaseType_t item_size;
-    UBaseType_t length;
-    UBaseType_t count;
-    UBaseType_t head;
-    UBaseType_t tail;
+    size_t item_size;
+    size_t length;
+    size_t count;
+    size_t head;
+    size_t tail;
 };
 
 static HostTask g_tasks[HOST_MAX_TASKS];
@@ -53,6 +53,7 @@ BaseType_t xTaskCreate(TaskFunction_t task_function,
 
 void vTaskStartScheduler(void)
 {
+    /* Host validation runs each task once in registration order, not as a preemptive scheduler. */
     for (size_t index = 0; index < g_task_count; ++index)
     {
         printf("[task] %s\n", g_tasks[index].name);
@@ -76,9 +77,9 @@ QueueHandle_t xQueueCreate(UBaseType_t length, UBaseType_t item_size)
         return NULL;
     }
 
-    host_queue->item_size = item_size;
-    host_queue->length = length;
-    host_queue->count = 0;
+    host_queue->item_size = (size_t)item_size;
+    host_queue->length = (size_t)length;
+    host_queue->count = 0U;
     host_queue->head = 0U;
     host_queue->tail = 0U;
     return host_queue;
@@ -93,7 +94,7 @@ BaseType_t xQueueSend(QueueHandle_t queue, const void *item, TickType_t ticks_to
         return pdFAIL;
     }
 
-    const size_t write_offset = (size_t)queue->tail * (size_t)queue->item_size;
+    const size_t write_offset = queue->tail * queue->item_size;
 
     memcpy(queue->buffer + write_offset, item, queue->item_size);
     queue->tail = (queue->tail + 1U) % queue->length;
@@ -110,7 +111,7 @@ BaseType_t xQueueReceive(QueueHandle_t queue, void *buffer, TickType_t ticks_to_
         return pdFAIL;
     }
 
-    const size_t read_offset = (size_t)queue->head * (size_t)queue->item_size;
+    const size_t read_offset = queue->head * queue->item_size;
 
     memcpy(buffer,
            queue->buffer + read_offset,

@@ -44,7 +44,9 @@ double camera_db_distance_km(double lat_a, double lon_a, double lat_b, double lo
 
 const CameraLocation *camera_db_find_nearest(double latitude, double longitude)
 {
-    if (camera_db_count() == 0U)
+    const size_t entry_count = camera_db_count();
+
+    if (entry_count == 0U)
     {
         return NULL;
     }
@@ -56,7 +58,7 @@ const CameraLocation *camera_db_find_nearest(double latitude, double longitude)
         nearest->latitude,
         nearest->longitude);
 
-    for (size_t index = 1; index < camera_db_count(); ++index)
+    for (size_t index = 1; index < entry_count; ++index)
     {
         const CameraLocation *candidate = &CAMERA_DB[index];
         const double candidate_distance = camera_db_distance_km(

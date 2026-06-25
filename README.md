@@ -7,7 +7,7 @@ komponentit ovat:
 
 - MCU: nRF52840
 - GPS: u-blox MAX-M10S
-- Storage: SPI Flash 16 MB (toteutus vastaa 8–16 MB vaatimuksen yläpäätä)
+- Storage: SPI Flash 16 MB (toteutus vastaa 8–16 MB vaatimuksen yläpäähän)
 - Audio: MAX98357A + pieni kaiutin
 - Akku: 1000 mAh LiPo
 
