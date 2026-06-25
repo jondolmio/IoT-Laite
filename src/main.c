@@ -42,6 +42,27 @@ static const DeviceProfile DEVICE_PROFILE = {
     .battery_capacity_mah = 1000U,
 };
 
+static void destroy_app_context(AppContext *app)
+{
+    if (app->gps_queue != NULL)
+    {
+        vQueueDelete(app->gps_queue);
+        app->gps_queue = NULL;
+    }
+
+    if (app->storage_queue != NULL)
+    {
+        vQueueDelete(app->storage_queue);
+        app->storage_queue = NULL;
+    }
+
+    if (app->audio_queue != NULL)
+    {
+        vQueueDelete(app->audio_queue);
+        app->audio_queue = NULL;
+    }
+}
+
 static void storage_task(void *context)
 {
     AppContext *app = context;
@@ -151,9 +172,7 @@ int main(void)
     if (app.gps_queue == NULL || app.storage_queue == NULL || app.audio_queue == NULL)
     {
         fprintf(stderr, "Failed to allocate queues.\n");
-        vQueueDelete(app.gps_queue);
-        vQueueDelete(app.storage_queue);
-        vQueueDelete(app.audio_queue);
+        destroy_app_context(&app);
         return 1;
     }
 
@@ -170,16 +189,12 @@ int main(void)
         xTaskCreate(battery_task, "battery", 512U, &app, 1U, NULL) != pdPASS)
     {
         fprintf(stderr, "Failed to create tasks.\n");
-        vQueueDelete(app.gps_queue);
-        vQueueDelete(app.storage_queue);
-        vQueueDelete(app.audio_queue);
+        destroy_app_context(&app);
         return 1;
     }
 
     vTaskStartScheduler();
 
-    vQueueDelete(app.gps_queue);
-    vQueueDelete(app.storage_queue);
-    vQueueDelete(app.audio_queue);
+    destroy_app_context(&app);
     return 0;
 }

@@ -93,7 +93,9 @@ BaseType_t xQueueSend(QueueHandle_t queue, const void *item, TickType_t ticks_to
         return pdFAIL;
     }
 
-    memcpy(queue->buffer + ((size_t)queue->tail * (size_t)queue->item_size), item, queue->item_size);
+    const size_t write_offset = (size_t)queue->tail * (size_t)queue->item_size;
+
+    memcpy(queue->buffer + write_offset, item, queue->item_size);
     queue->tail = (queue->tail + 1U) % queue->length;
     ++queue->count;
     return pdPASS;
@@ -108,8 +110,10 @@ BaseType_t xQueueReceive(QueueHandle_t queue, void *buffer, TickType_t ticks_to_
         return pdFAIL;
     }
 
+    const size_t read_offset = (size_t)queue->head * (size_t)queue->item_size;
+
     memcpy(buffer,
-           queue->buffer + ((size_t)queue->head * (size_t)queue->item_size),
+           queue->buffer + read_offset,
            queue->item_size);
     queue->head = (queue->head + 1U) % queue->length;
     --queue->count;
