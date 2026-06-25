@@ -27,7 +27,10 @@ toteutus on tehty hostilla käännettävänä FreeRTOS-runkona. Mukana oleva
 FreeRTOS-porttia. Oikealla laitteella shim korvataan FreeRTOS-kernelillä ja
 nRF52840-ajureilla. Nykyinen host-validointi käyttää pientä käännettyä
 kameratietokantaa (`src/camera_db.c`); tuotantoversiossa sama data on tarkoitus
-lukea SPI Flash -muistista `storage_task`-tehtävän kautta.
+lukea SPI Flash -muistista `storage_task`-tehtävän kautta. Host-shim ajaa jokaisen
+tehtävän kerran rekisteröintijärjestyksessä, joten sitä käytetään vain
+perusdatavirran validointiin eikä oikean FreeRTOS-ajon ajoitus- tai
+kilpajuoksuongelmien todentamiseen.
 
 ## Käännös
 

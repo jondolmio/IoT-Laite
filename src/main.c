@@ -30,6 +30,7 @@ typedef struct
 typedef struct
 {
     QueueHandle_t gps_queue;
+    QueueHandle_t storage_queue;
     QueueHandle_t audio_queue;
 } AppContext;
 
@@ -43,8 +44,11 @@ static const DeviceProfile DEVICE_PROFILE = {
 
 static void storage_task(void *context)
 {
-    (void)context;
+    AppContext *app = context;
+    const bool storage_ready = true;
+
     printf("SPI flash mounted, camera entries loaded: %zu\n", camera_db_count());
+    (void)xQueueSend(app->storage_queue, &storage_ready, pdMS_TO_TICKS(10));
 }
 
 static void gps_task(void *context)
@@ -70,7 +74,14 @@ static void gps_task(void *context)
 static void navigation_task(void *context)
 {
     AppContext *app = context;
+    bool storage_ready = false;
     GpsFix fix = {0};
+
+    if (xQueueReceive(app->storage_queue, &storage_ready, pdMS_TO_TICKS(10)) != pdPASS || !storage_ready)
+    {
+        printf("Storage is not ready.\n");
+        return;
+    }
 
     if (xQueueReceive(app->gps_queue, &fix, pdMS_TO_TICKS(10)) != pdPASS || !fix.valid)
     {
@@ -133,13 +144,15 @@ int main(void)
 {
     AppContext app = {
         .gps_queue = xQueueCreate(1U, sizeof(GpsFix)),
+        .storage_queue = xQueueCreate(1U, sizeof(bool)),
         .audio_queue = xQueueCreate(1U, sizeof(AudioAlert)),
     };
 
-    if (app.gps_queue == NULL || app.audio_queue == NULL)
+    if (app.gps_queue == NULL || app.storage_queue == NULL || app.audio_queue == NULL)
     {
         fprintf(stderr, "Failed to allocate queues.\n");
         vQueueDelete(app.gps_queue);
+        vQueueDelete(app.storage_queue);
         vQueueDelete(app.audio_queue);
         return 1;
     }
@@ -158,6 +171,7 @@ int main(void)
     {
         fprintf(stderr, "Failed to create tasks.\n");
         vQueueDelete(app.gps_queue);
+        vQueueDelete(app.storage_queue);
         vQueueDelete(app.audio_queue);
         return 1;
     }
@@ -165,6 +179,7 @@ int main(void)
     vTaskStartScheduler();
 
     vQueueDelete(app.gps_queue);
+    vQueueDelete(app.storage_queue);
     vQueueDelete(app.audio_queue);
     return 0;
 }
