@@ -79,6 +79,12 @@ static void navigation_task(void *context)
     }
 
     const CameraLocation *camera = camera_db_find_nearest(fix.latitude, fix.longitude);
+    if (camera == NULL)
+    {
+        printf("Camera database is empty.\n");
+        return;
+    }
+
     const double distance_km = camera_db_distance_km(
         fix.latitude,
         fix.longitude,

@@ -41,6 +41,11 @@ double camera_db_distance_km(double lat_a, double lon_a, double lat_b, double lo
 
 const CameraLocation *camera_db_find_nearest(double latitude, double longitude)
 {
+    if (camera_db_count() == 0U)
+    {
+        return NULL;
+    }
+
     const CameraLocation *nearest = &CAMERA_DB[0];
     double nearest_distance = camera_db_distance_km(
         latitude,

@@ -7,7 +7,7 @@ komponentit ovat:
 
 - MCU: nRF52840
 - GPS: u-blox MAX-M10S
-- Storage: SPI Flash 8–16 MB
+- Storage: SPI Flash 8–16 MB (nykyinen profiili 16 MB)
 - Audio: MAX98357A + pieni kaiutin
 - Akku: 1000 mAh LiPo
 
@@ -30,7 +30,7 @@ nRF52840-ajureilla.
 ## Käännös
 
 ```sh
-cmake -S /home/runner/work/IoT-Laite/IoT-Laite -B /home/runner/work/IoT-Laite/IoT-Laite/build
-cmake --build /home/runner/work/IoT-Laite/IoT-Laite/build
+cmake -S . -B build
+cmake --build build
 ./build/iot_laite
 ```

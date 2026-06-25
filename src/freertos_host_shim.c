@@ -110,7 +110,7 @@ BaseType_t xQueueReceive(QueueHandle_t queue, void *buffer, TickType_t ticks_to_
     {
         memmove(queue->buffer,
                 queue->buffer + queue->item_size,
-                queue->count * queue->item_size);
+                (size_t)queue->count * (size_t)queue->item_size);
     }
 
     return pdPASS;
