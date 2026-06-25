@@ -39,3 +39,18 @@ cmake -S . -B build
 cmake --build build
 ./build/iot_laite
 ```
+
+## OSM-nopeuskameratietokannan päivitys (Suomi)
+
+`src/camera_db.c` voidaan päivittää suoraan OpenStreetMapin Suomen
+`highway=speed_camera`-kohteista:
+
+```sh
+python tools/generate_camera_db_from_osm.py --output src/camera_db.c
+```
+
+Jos haluat käyttää valmiiksi ladattua Overpass JSON -aineistoa:
+
+```sh
+python tools/generate_camera_db_from_osm.py --input /polku/fi_speed_cameras.json --output src/camera_db.c
+```
