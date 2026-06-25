@@ -60,24 +60,24 @@ void vTaskStartScheduler(void)
 
 QueueHandle_t xQueueCreate(UBaseType_t length, UBaseType_t item_size)
 {
-    struct HostQueue *queue = calloc(1, sizeof(*queue));
+    struct HostQueue *host_queue = calloc(1, sizeof(*host_queue));
 
-    if (queue == NULL)
+    if (host_queue == NULL)
     {
         return NULL;
     }
 
-    queue->buffer = calloc(length, item_size);
-    if (queue->buffer == NULL)
+    host_queue->buffer = calloc(length, item_size);
+    if (host_queue->buffer == NULL)
     {
-        free(queue);
+        free(host_queue);
         return NULL;
     }
 
-    queue->item_size = item_size;
-    queue->length = length;
-    queue->count = 0;
-    return queue;
+    host_queue->item_size = item_size;
+    host_queue->length = length;
+    host_queue->count = 0;
+    return host_queue;
 }
 
 BaseType_t xQueueSend(QueueHandle_t queue, const void *item, TickType_t ticks_to_wait)

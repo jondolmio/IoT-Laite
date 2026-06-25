@@ -6,6 +6,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define EARTH_RADIUS_KM 6371.0
+
 static const CameraLocation CAMERA_DB[] = {
     {"Helsinki / Kehä I", 60.2206, 24.8710},
     {"Turku / Satakunnantie", 60.4517, 22.2666},
@@ -30,7 +32,6 @@ const CameraLocation *camera_db_entries(void)
 
 double camera_db_distance_km(double lat_a, double lon_a, double lat_b, double lon_b)
 {
-    const double earth_radius_km = 6371.0;
     const double delta_lat = degrees_to_radians(lat_b - lat_a);
     const double delta_lon = degrees_to_radians(lon_b - lon_a);
     const double a = sin(delta_lat / 2.0) * sin(delta_lat / 2.0) +
@@ -38,7 +39,7 @@ double camera_db_distance_km(double lat_a, double lon_a, double lat_b, double lo
                          sin(delta_lon / 2.0) * sin(delta_lon / 2.0);
     const double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 
-    return earth_radius_km * c;
+    return EARTH_RADIUS_KM * c;
 }
 
 const CameraLocation *camera_db_find_nearest(double latitude, double longitude)
