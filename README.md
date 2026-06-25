@@ -25,7 +25,9 @@ Koska repositoryssa ei ollut aiempaa firmwarea tai valmistajakohtaisia SDK-riipp
 toteutus on tehty hostilla käännettävänä FreeRTOS-runkona. Mukana oleva
 `freertos_host_shim` mahdollistaa sovellusvirran validoinnin ilman varsinaista
 FreeRTOS-porttia. Oikealla laitteella shim korvataan FreeRTOS-kernelillä ja
-nRF52840-ajureilla.
+nRF52840-ajureilla. Nykyinen host-validointi käyttää pientä käännettyä
+kameratietokantaa (`src/camera_db.c`); tuotantoversiossa sama data on tarkoitus
+lukea SPI Flash -muistista `storage_task`-tehtävän kautta.
 
 ## Käännös
 

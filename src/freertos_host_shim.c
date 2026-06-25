@@ -20,6 +20,8 @@ struct HostQueue
     UBaseType_t item_size;
     UBaseType_t length;
     UBaseType_t count;
+    UBaseType_t head;
+    UBaseType_t tail;
 };
 
 static HostTask g_tasks[HOST_MAX_TASKS];
@@ -77,6 +79,8 @@ QueueHandle_t xQueueCreate(UBaseType_t length, UBaseType_t item_size)
     host_queue->item_size = item_size;
     host_queue->length = length;
     host_queue->count = 0;
+    host_queue->head = 0U;
+    host_queue->tail = 0U;
     return host_queue;
 }
 
@@ -89,7 +93,8 @@ BaseType_t xQueueSend(QueueHandle_t queue, const void *item, TickType_t ticks_to
         return pdFAIL;
     }
 
-    memcpy(queue->buffer + (queue->count * queue->item_size), item, queue->item_size);
+    memcpy(queue->buffer + ((size_t)queue->tail * (size_t)queue->item_size), item, queue->item_size);
+    queue->tail = (queue->tail + 1U) % queue->length;
     ++queue->count;
     return pdPASS;
 }
@@ -103,15 +108,11 @@ BaseType_t xQueueReceive(QueueHandle_t queue, void *buffer, TickType_t ticks_to_
         return pdFAIL;
     }
 
-    memcpy(buffer, queue->buffer, queue->item_size);
+    memcpy(buffer,
+           queue->buffer + ((size_t)queue->head * (size_t)queue->item_size),
+           queue->item_size);
+    queue->head = (queue->head + 1U) % queue->length;
     --queue->count;
-
-    if (queue->count > 0U)
-    {
-        memmove(queue->buffer,
-                queue->buffer + queue->item_size,
-                (size_t)queue->count * (size_t)queue->item_size);
-    }
 
     return pdPASS;
 }
