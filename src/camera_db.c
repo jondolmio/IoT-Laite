@@ -2,6 +2,10 @@
 
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static const CameraLocation CAMERA_DB[] = {
     {"Helsinki / Kehä I", 60.2206, 24.8710},
     {"Turku / Satakunnantie", 60.4517, 22.2666},
@@ -9,11 +13,9 @@ static const CameraLocation CAMERA_DB[] = {
     {"Oulu / Limingantulli", 65.0057, 25.4711},
 };
 
-static const double PI = 3.14159265358979323846;
-
 static double degrees_to_radians(double degrees)
 {
-    return degrees * (PI / 180.0);
+    return degrees * (M_PI / 180.0);
 }
 
 size_t camera_db_count(void)
