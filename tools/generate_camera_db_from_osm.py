@@ -11,6 +11,7 @@ import urllib.parse
 import urllib.request
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+USER_AGENT = "IoT-Laite/1.0 (+https://github.com/jondolmio/IoT-Laite)"
 OVERPASS_QUERY = """
 [out:json][timeout:180];
 area["ISO3166-1"="FI"][admin_level=2]->.searchArea;
@@ -44,7 +45,7 @@ def fetch_overpass() -> dict:
     request = urllib.request.Request(
         OVERPASS_URL,
         data=payload,
-        headers={"User-Agent": "IoT-Laite OSM camera database generator"},
+        headers={"User-Agent": USER_AGENT},
     )
     try:
         with urllib.request.urlopen(request, timeout=240) as response:
@@ -67,7 +68,8 @@ def parse_cameras(payload: dict) -> list[tuple[str, float, float]]:
         tags = element.get("tags", {})
         name = camera_name(tags, element.get("id", 0))
         cameras.append((name, float(latitude), float(longitude)))
-    cameras.sort(key=lambda item: (item[1], item[2], item[0]))
+    # Sort by latitude, longitude, then name for deterministic output.
+    cameras.sort(key=lambda camera: (camera[1], camera[2], camera[0]))
     return cameras
 
 
